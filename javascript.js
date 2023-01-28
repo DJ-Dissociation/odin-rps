@@ -1,5 +1,3 @@
-// console.log('hello!');
-
 // Returns a random choice of RPS when run.
 function getComputerChoice() {
     let n_rand = Math.random(); // select random number to pick rps
@@ -7,11 +5,11 @@ function getComputerChoice() {
     if (n_rand===0) {           // run it again in the rare case rand picks 0.00
         return getComputerChoice();
     } else if (n_rand>0 && n_rand<0.33){
-        return 'Rock';
+        return 'rock';
     } else if (n_rand>=0.33 && n_rand<0.667){
-        return 'Paper';
+        return 'paper';
     } else {
-        return 'Scissors'
+        return 'scissors'
     }
 }
 
@@ -19,10 +17,7 @@ function getComputerChoice() {
 function playRound(playerSelection, computerSelection) { 
     let playerSelectionLower = playerSelection.toLowerCase();       //fix any input errors
     let computerSelectionLower = computerSelection.toLowerCase();
-    // console.log("player choice: "+playerSelectionLower);
-    // console.log("computer choice: "+computerSelectionLower) ;
-    // if (playerSelectionLower===computerSelectionLower) {
-    //     return "It's a tie :/";
+
     if (playerSelectionLower==='rock'){             // for rock: return false if losing matchup, true if winning matchup
         if (computerSelectionLower==='paper'){
             return false;
@@ -46,72 +41,121 @@ function playRound(playerSelection, computerSelection) {
     }
 }
 
-
 // given an RPS choice and whether the player won, return the appropriate message.
 function getMessage(playerSelection, playerWin){
-    if (playerSelection === "rock"){
+    if (playerSelection === 'rock'){
         if (playerWin) {
-            return "You Win! Rock beats Scissors";
+            return "You win! Rock beats scissors.";
         } else {
-            return "You Lose! Paper beats Rock";
+            return "You lose! Paper beats rock.";
         }
-    } else if (playerSelection === "paper") {
+    } else if (playerSelection === 'paper') {
         if (playerWin) {
-            return "You Win! Paper beats Rock";
+            return "You win! Paper beats rock.";
         } else {
-            return "You Lose! Scissors beats Paper";
+            return "You lose! Scissors beats paper.";
         }
-    } else if (playerSelection === "scissors") {
+    } else if (playerSelection === 'scissors') {
         if (playerWin) {
-            return "You Win! Scissors beats Paper";
+            return "You win! Scissors beats paper.";
         } else {
-            return "You Lose! Rock beats Paper";
+            return "You lose! Rock beats scissors.";
         }
-    } else {
-        return //"Hmm.. getMessage() got weird input..";  // in case something weird happens
     }
+    return "Hmm.. getMessage() got weird input: " + playerSelection;  // in case something weird happens
 }
 
-// runs playRound() 5 times (hard-coded); prints status and score at the end.
-function game() {
-    // if (n_rounds < 1) {
-    //     console.log("Hey now.. enter a good number");
-    //     return;
-    // }
-    let player_score = 0;       // initialize scores
-    let computer_score = 0;
-    
-    for (let i = 0; i < 5; i++) {   // for 5 rounds:
-        let playerSelection = window.prompt("Choose your weapon...");    //get use input, and format
-        let computerSelection = getComputerChoice();
-        let playerWin = playRound(playerSelection, computerSelection);
-
-        console.log("player choice: "+playerSelection.toLowerCase());
-        console.log("computer choice: "+computerSelection.toLowerCase()) ;
-
-        if (playerSelection.toLowerCase()===computerSelection.toLowerCase()){   // in case of a tie
-            console.log("It's a tie :/");
-            player_score += 0.5;
-            computer_score += 0.5;
-        } else {
-            console.log(getMessage(playerSelection.toLowerCase(), playerWin));  //get the right message
-            if (playerWin) {                                                    //increment scores appropriately
-                player_score++;
-            } else {
-                computer_score++;
-            }
-        }
-        console.log("win status: "+playerWin);                                  // print stats
-        console.log("current player: "+player_score);
-        console.log("current computer: "+computer_score);
-        console.log("-------");
-    }
-    console.log("Final score: Player: "+player_score+". Computer: "+computer_score+".");    //print final results
-    if (player_score > computer_score){
-        console.log("Player Win!");
-    } else if (computer_score > player_score){
-        console.log("Computer Win..");
+// update the variables for player and computer scores, given choices and current array of scores
+function updateScores(playerChoiceLower, computerChoice, scores) {
+    if (playerChoiceLower===computerChoice){   // in case of a tie
+        scores[0] += 0.5;
+        scores[1] += 0.5;
     } else {
-        console.log("It's a tie :0");
+        if (playRound(playerChoiceLower, computerChoice)) {     //increment scores appropriately
+            scores[0]++;
+        } else {
+            scores[1]++;
+        }
     }
+    return scores;  //return new values
 }
+
+// update the visual scoreboard on the screen
+function updateScoreboard(playerChoiceLower, computerChoice) {
+    playerScoreboard.textContent = "Player: "+scores[0];        //update scoreboard with latest scores
+    computerScoreboard.textContent = "Computer: "+scores[1];
+
+    let newMsg1 = document.createElement('div');                // update round history to show what each player chose
+    newMsg1.textContent = "You chose " + playerChoiceLower + "... Computer chose " + computerChoice + "!";
+    roundHistory.appendChild(newMsg1);
+
+    if (playerChoiceLower===computerChoice){                    //update round history with round results
+        let newMsg = document.createElement('div');
+        newMsg.textContent = ("It's a tie :/");
+        roundHistory.appendChild(newMsg);
+    } else {
+        let newMsg = document.createElement('div');
+        newMsg.textContent = getMessage(playerChoiceLower, playRound(playerChoiceLower, computerChoice));
+
+        roundHistory.appendChild(newMsg);
+    }
+
+    let lineBreak = document.createElement('div');                  // add a new line to round history
+    lineBreak.textContent = "-------";
+    roundHistory.appendChild(lineBreak);  
+}
+
+// function to perform end of game protocols; print winner, disable buttons
+function endGame(scores) {
+    if (scores[0] >= winCon){    // if player wins  
+        let endMsg = document.createElement('div');
+        endMsg.textContent = "PLAYER WIN LETS GO";
+        roundHistory.appendChild(endMsg);
+    } else if (scores[1] >= winCon) {    // if computer wins
+        let endMsg = document.createElement('div');
+        endMsg.textContent = "Computer win.. the AI is learning :0";
+        roundHistory.appendChild(endMsg);
+    } 
+    buttons.forEach((button) => {   // disable buttons 
+        button.disabled = true;
+    });
+}
+
+// variable definitions
+const buttons = document.querySelectorAll('.gameButton');        // select all buttons
+const resetButton = document.querySelector('.resetButton');
+const scoreboard = document.querySelector('.scoreboard');   // select the scoreboard
+let scores = [0, 0];                                        // initialize scores; [0] is player, [1] is computer
+const winCon = 5;                                           // set points required to win
+const playerScoreboard = document.querySelector('.playerScore');        // select divs for player and computer score updates
+const computerScoreboard = document.querySelector('.computerScore');
+const roundHistory = document.querySelector('.roundHistory');
+
+// Event listener for each button. Pressing a button will play a round, update the scores
+// and scoreboard, and then end the game if anyone has reached 5 points yet.
+buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+        let playerChoiceLower = button.textContent.toLowerCase();   // get player and computer choices
+        let computerChoice = getComputerChoice();
+
+        scores = updateScores(playerChoiceLower, computerChoice, scores);   // update score variables
+        updateScoreboard(playerChoiceLower, computerChoice);                // update scoreboard
+
+        if (scores[0] >= winCon || scores[1] >= winCon){        // proceed to end of game if winCon is met by either player
+            endGame(scores);
+        }
+    });
+});
+
+// reset button behavior, on click
+resetButton.addEventListener('click', () => { 
+    roundHistory.textContent = "";                              // reset round history printouts
+    scores[0] = 0;                                              // reset scores and scoreboard
+    scores[1] = 0;
+    playerScoreboard.textContent = "Player: "+scores[0];
+    computerScoreboard.textContent = "Computer: "+scores[1];
+
+    buttons.forEach((button) => {                       // reactivate buttons if they were locked by endGame()
+        button.disabled = false;
+    });
+});

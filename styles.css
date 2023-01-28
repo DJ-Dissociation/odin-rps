@@ -1,0 +1,36 @@
+.buttons {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    padding: 32px;
+    background-color: green;
+    margin-bottom: 16px;
+}
+
+.gameButton {
+    padding: 8px 16px;
+    width: 100px;
+}
+
+.scoreboard {
+    margin: auto;
+    text-align: center;
+}
+
+.scores {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-bottom: 16px;
+    font-weight: 900;
+}
+
+/* body {
+    display: flex;
+    flex-direction: column;
+} */
+
+.resetButton {
+    /* display: flex;
+    align-content: ; */
+}
